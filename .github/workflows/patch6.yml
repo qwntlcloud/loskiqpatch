@@ -75,10 +75,16 @@ jobs:
 
           sudo modprobe nbd
           sudo qemu-nbd -f raw -c /dev/nbd0 install-image-${LATEST_VERSION}.img
-          sudo partprobe /dev/nbd0
+          sleep 2
 
-          sudo mkdir mnt
-          sudo mount /dev/nbd0p1 mnt
+          sudo mkdir -p mnt
+
+          # coba mount partisi dulu, kalau tidak ada fallback ke raw device
+          if [ -e /dev/nbd0p1 ]; then
+            sudo mount /dev/nbd0p1 mnt
+          else
+            sudo mount /dev/nbd0 mnt
+          fi
 
           sudo -E python3 patch.py kernel mnt/initrd.rgz
           for f in mnt/*.npk; do
