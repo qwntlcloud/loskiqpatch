@@ -96,7 +96,7 @@ jobs:
 
           mv install-image-${LATEST_VERSION}.img install-image-${LATEST_VERSION}-patched.img
 
-          for fmt in qcow2 vmdk vhd vhdx vdi; do
+          for fmt in qcow2 vmdk vpc vhdx vdi; do
             qemu-img convert -f raw -O $fmt \
               install-image-${LATEST_VERSION}-patched.img \
               install-image-${LATEST_VERSION}-patched.$fmt
