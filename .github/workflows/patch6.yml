@@ -103,8 +103,7 @@ jobs:
       # ================= CHR =================
       - name: Download CHR
         run: |
-          curl -s -o chr.img.zip \
-          https://download.mikrotik.com/routeros/${LATEST_VERSION}/chr-${LATEST_VERSION}.img.zip
+          curl -s -o chr.img.zip https://download.mikrotik.com/routeros/${LATEST_VERSION}/chr-${LATEST_VERSION}.img.zip
 
       - name: Patch CHR
         run: |
