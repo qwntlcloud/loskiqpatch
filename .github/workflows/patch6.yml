@@ -184,7 +184,6 @@ jobs:
         sudo rm chr-$LATEST_VERSION-patched.img
 
     - name: Create Release tag ${{ env.LATEST_VERSION }}
-      if: steps.get_latest.outputs.has_new_version == 'true'
       uses: softprops/action-gh-release@v2
       with:
         name: "RouterOS ${{ env.LATEST_VERSION }}"
