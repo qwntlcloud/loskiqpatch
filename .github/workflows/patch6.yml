@@ -113,30 +113,6 @@ jobs:
           rm install-image-${LATEST_VERSION}-patched.img
 
 
-
-      # ================= CHR =================
-      - name: Download CHR
-        run: |
-          curl -s -o chr.img.zip https://download.mikrotik.com/routeros/${LATEST_VERSION}/chr-${LATEST_VERSION}.img.zip
-
-      - name: Patch CHR
-        run: |
-          unzip chr.img.zip
-          cp chr-${LATEST_VERSION}.img chr-${LATEST_VERSION}-patched.img
-
-          for fmt in qcow2 vmdk vhd vhdx vdi; do
-            qemu-img convert -f raw -O $fmt \
-              chr-${LATEST_VERSION}-patched.img \
-              chr-${LATEST_VERSION}-patched.$fmt
-            zip chr-${LATEST_VERSION}-patched.$fmt.zip \
-              chr-${LATEST_VERSION}-patched.$fmt
-            rm chr-${LATEST_VERSION}-patched.$fmt
-          done
-
-          zip chr-${LATEST_VERSION}-patched.img.zip \
-            chr-${LATEST_VERSION}-patched.img
-          rm chr-${LATEST_VERSION}-patched.img
-
       # ================= DEBUG =================
       - name: List output files
         run: ls -lh
