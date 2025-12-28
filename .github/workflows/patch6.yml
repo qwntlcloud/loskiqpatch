@@ -69,36 +69,43 @@ jobs:
           curl -s -o install-image.zip \
           https://download.mikrotik.com/routeros/${LATEST_VERSION}/install-image-${LATEST_VERSION}.zip
 
-      - name: Patch install-image
-        run: |
-          unzip install-image.zip
-          sudo modprobe nbd
-          sudo qemu-nbd -c /dev/nbd0 install-image-${LATEST_VERSION}.img
-          sudo mkdir mnt
-          sudo mount /dev/nbd0 mnt
+- name: Patch install-image
+  run: |
+    unzip install-image.zip
 
-          sudo -E python3 patch.py kernel mnt/initrd.rgz
-          for f in mnt/*.npk; do
-            sudo -E python3 patch.py npk "$f"
-          done
+    sudo modprobe nbd
+    sudo qemu-nbd -f raw -c /dev/nbd0 install-image-${LATEST_VERSION}.img
+    sudo partprobe /dev/nbd0
 
-          sudo umount mnt
-          sudo qemu-nbd -d /dev/nbd0
+    sudo mkdir mnt
+    sudo mount /dev/nbd0p1 mnt
 
-          mv install-image-${LATEST_VERSION}.img install-image-${LATEST_VERSION}-patched.img
+    sudo -E python3 patch.py kernel mnt/initrd.rgz
+    for f in mnt/*.npk; do
+      sudo -E python3 patch.py npk "$f"
+    done
 
-          for fmt in qcow2 vmdk vhd vhdx vdi; do
-            qemu-img convert -f raw -O $fmt \
-              install-image-${LATEST_VERSION}-patched.img \
-              install-image-${LATEST_VERSION}-patched.$fmt
-            zip install-image-${LATEST_VERSION}-patched.$fmt.zip \
-              install-image-${LATEST_VERSION}-patched.$fmt
-            rm install-image-${LATEST_VERSION}-patched.$fmt
-          done
+    sudo umount mnt
+    sudo qemu-nbd -d /dev/nbd0
 
-          zip install-image-${LATEST_VERSION}-patched.img.zip \
-            install-image-${LATEST_VERSION}-patched.img
-          rm install-image-${LATEST_VERSION}-patched.img
+    mv install-image-${LATEST_VERSION}.img install-image-${LATEST_VERSION}-patched.img
+
+    for fmt in qcow2 vmdk vhd vhdx vdi; do
+      qemu-img convert -f raw -O $fmt \
+        install-image-${LATEST_VERSION}-patched.img \
+        install-image-${LATEST_VERSION}-patched.$fmt
+
+      zip install-image-${LATEST_VERSION}-patched.$fmt.zip \
+        install-image-${LATEST_VERSION}-patched.$fmt
+
+      rm install-image-${LATEST_VERSION}-patched.$fmt
+    done
+
+    zip install-image-${LATEST_VERSION}-patched.img.zip \
+      install-image-${LATEST_VERSION}-patched.img
+
+    rm install-image-${LATEST_VERSION}-patched.img
+
 
       # ================= CHR =================
       - name: Download CHR
